@@ -7,9 +7,6 @@ const multer = require('multer');
 const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
-const feedRoutes = require('./routes/feed');
-const authRoutes = require('./routes/auth');
-
 const MONGODB_URI = 'mongodb+srv://NightmanCZ90:<password>@cluster0.a0hh5.mongodb.net/messages?retryWrites=true&w=majority'
 
 const app = express();
@@ -38,9 +35,6 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.options('*', cors());
 app.use(cors());
 
-app.use('/feed', feedRoutes);
-app.use('/auth', authRoutes);
-
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
@@ -53,9 +47,5 @@ mongoose.connect(MONGODB_URI)
   .then(result => {
     console.log('Connected!')
     const server = app.listen(8080);
-    const io = require('./socket').init(server);
-    io.on('connection', socket => {
-      console.log('Client connected')
-    });
   })
   .catch(err => console.log(err));

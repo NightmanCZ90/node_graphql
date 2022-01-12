@@ -1,10 +1,11 @@
 const bcrypt = require('bcryptjs');
 const validator = require('validator').default;
+const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
 module.exports = {
-  createUser: async function(args, req) {
+  createUser: async (args, req) => {
     const { email, name, password } = args.userInput;
     const errors = [];
     if (!validator.isEmail(email)) {
@@ -36,5 +37,26 @@ module.exports = {
       ...createdUser._doc,
       _id: createdUser._id.toString(), // I have to convert it to string and save it again, otherwise it will fail
     }
+  },
+  login: async ({ email, password }) => {
+    const user = await User.findOne({ email });
+    console.log(user)
+    if (!user) {
+      const error = new Error('User not found.');
+      error.code = 401;
+      throw error;
+    }
+    const isEqual = await bcrypt.compare(password, user.password);
+    if (!isEqual) {
+      const error = new Error('Password is incorrect.');
+      error.code = 401;
+      throw error;
+    }
+    const token = jwt.sign({
+      userId: user._id.toString(),
+      email: user.email,
+    }, 'somesupersecretstring', { expiresIn: '1h' });
+
+    return { token, userId: user._id.toString() }
   }
 }

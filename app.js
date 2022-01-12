@@ -10,6 +10,7 @@ const { graphqlHTTP } = require('express-graphql');
 
 const graphqlSchema = require('./graphql/schema');
 const graphqlResolver = require('./graphql/resolvers');
+const auth = require('./middleware/auth');
 
 const MONGODB_URI = 'mongodb+srv://NightmanCZ90:<password>@cluster0.a0hh5.mongodb.net/messages?retryWrites=true&w=majority'
 
@@ -38,6 +39,8 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.options('*', cors());
 app.use(cors());
+
+app.use(auth);
 
 app.use('/graphql', graphqlHTTP({
   schema: graphqlSchema,

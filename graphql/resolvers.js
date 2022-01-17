@@ -92,7 +92,6 @@ module.exports = {
       imageUrl: postInput.imageUrl,
       creator: user,
     });
-    console.log(post)
     const createdPost = await post.save();
     user.posts.push(createdPost);
     await user.save();
@@ -125,5 +124,24 @@ module.exports = {
       })),
       totalPosts,
     };
+  },
+  post: async ({ id }, req) => {
+    if (!req.isAuth) {
+      const error = new Error('Not authenticated!');
+      error.code = 401;
+      throw error;
+    }
+    const post = await Post.findById(id).populate('creator');
+    if (!post) {
+      const error = new Error('No post found!');
+      error.code = 404;
+      throw error;
+    }
+    return {
+      ...post._doc,
+      _id: post._id.toString(),
+      createdAt: post.createdAt.toISOString(),
+      updatedAt: post.updatedAt.toISOString(),
+    }
   }
 }

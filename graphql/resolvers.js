@@ -92,6 +92,7 @@ module.exports = {
       imageUrl: postInput.imageUrl,
       creator: user,
     });
+    console.log(post)
     const createdPost = await post.save();
     user.posts.push(createdPost);
     await user.save();
